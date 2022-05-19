@@ -1,7 +1,6 @@
 const backend_base_url = "http://127.0.0.1:5001"
 const frontend_base_url = "http://127.0.0.1:5501"
 
-
 async function handleSignin() {
 
     const signupData = {
@@ -26,8 +25,6 @@ async function handleSignin() {
     }
 }
 
-
-
 async function handleLogin() {
     console.log("handle login")
 
@@ -49,6 +46,11 @@ async function handleLogin() {
     response_json = await response.json()
     console.log(response_json)
     localStorage.setItem("token", response_json.token)
+    if (response.status == 200) {
+        window.location.replace(`${frontend_base_url}/`);
+    } else {
+        alert(response.status)
+    }
 
 }
 
@@ -62,15 +64,18 @@ async function getName() {
         }
     }
     )
-    response_json = await response.json()
-    console.log(response_json)
 
-    const username = document.getElementById("username")
-    username.innerText = response_json.email
-
-    // return response_json.email
+    if (response.status == 200) {
+        response_json = await response.json()
+        console.log(response_json)
+        return response_json.email
+    }
+    else {
+        return null
+    }
 
 }
+
 
 
 async function postArticle(title, content) {
@@ -90,6 +95,7 @@ async function postArticle(title, content) {
     }
     )
 
+
     response_json = await response.json()
     console.log(response_json)
 
@@ -98,26 +104,40 @@ async function postArticle(title, content) {
     } else {
         alert(response.status)
     }
-
 }
-
-
-
 
 async function getArticles() {
     const response = await fetch(`${backend_base_url}/article`, {
         method: 'GET',
-
     }
     )
 
     response_json = await response.json()
-
     return response_json.articles
+}
 
 
+function logout() {
+    localStorage.removeItem("token")
+    window.location.replace(`${frontend_base_url}/`);
+}
+
+function articleDetail(article_id) {
+    console.log(article_id)
+    const url = `${frontend_base_url}/article_detail.html?id=${article_id}`
+    location.href = url
+}
 
 
+async function getArticleDetail(article_id) {
+    const response = await fetch(`${backend_base_url}/article/${article_id}`, {
+        method: 'GET',
+    }
+    )
+    response_json = await response.json()
+    console.log(response_json)
+
+    return response_json.article
 
 }
 
