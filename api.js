@@ -1,6 +1,11 @@
 const backend_base_url = "http://127.0.0.1:5001"
 const frontend_base_url = "http://127.0.0.1:5501"
 
+// 비동기 함수 async 요청이 들어올 때만 작동
+// fetch api 역시 함수가 호출되면 작동함
+// signupData는 딕셔너리 형식으로, json데이터가 아니라면 제대로 서버로 전달되지 않음
+// 그러므로 JSON.stringfy메서드로 변환해야함
+
 async function handleSignin() {
 
     const signupData = {
@@ -42,9 +47,11 @@ async function handleLogin() {
 
 
     console.log(response)
-
+    // json형태로
     response_json = await response.json()
     console.log(response_json)
+
+    // 백엔드에서 받은 토큰을 브라우저에 저장해줌
     localStorage.setItem("token", response_json.token)
     if (response.status == 200) {
         window.location.replace(`${frontend_base_url}/`);
@@ -140,4 +147,49 @@ async function getArticleDetail(article_id) {
     return response_json.article
 
 }
+
+async function patchArticle(article_id, title, content) {
+
+    const articleData = {
+        "title": title,
+        "content": content
+    }
+
+    const response = await fetch(`${backend_base_url}/article/${article_id}`, {
+        headers: {
+            'Authorization': localStorage.getItem("token")
+        },
+        method: 'PATCH',
+        body: JSON.stringify(articleData)
+    })
+
+    if (response.status == 200) {
+        response_json = await response.json()
+        return response_json
+
+    } else {
+        alert(response.status)
+    }
+}
+
+async function deleteArticle() {
+    const response = await fetch(`${backend_base_url}/article/${article_id}`, {
+        headers: {
+            'Authorization': localStorage.getItem("token")
+        },
+        method: 'DELETE',
+    }
+    )
+
+    if (response.status == 200) {
+        window.location.replace(`${frontend_base_url}/`);
+
+    } else {
+        alert(response.status)
+    }
+}
+
+
+
+
 
